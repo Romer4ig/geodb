@@ -12,8 +12,7 @@ import GeoService.Model.City
 api :: Proxy Api
 api = Proxy
 
-type Api =
-        -- POST Add city 
+type Api = 
        "country" :>  Capture "name" Text :> "cites" :> Get [City]
         -- GET cityId from city by Country
   :<|> "country" :>  Capture "name" Text :> "cites" :> "short" :>  Get [Text]
@@ -21,3 +20,5 @@ type Api =
   :<|> "cities"   :>  Get [City]
         -- GET autocomplite by city in cityTranslation
   :<|> "city"    :>  Capture "name" Text :> "autocomplete" :> QueryParam "limit" Int :> Get [City]
+
+  :<|> "addcity" :> ReqBody City :> Post String

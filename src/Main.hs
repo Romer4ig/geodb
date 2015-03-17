@@ -1,19 +1,10 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE PolyKinds #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE OverloadedStrings #-}
-
-import GHC.Generics
 import qualified Database.RethinkDB as R
-import qualified Data.Text as T
-import Data.Text (Text)
-import Data.IORef
 import qualified Network.Wai
 import qualified Network.Wai.Handler.Warp
+import qualified GeoService.DB.Rethink as DB
 import Database.RethinkDB.NoClash
-import Database.RethinkDB.Datum (resultToMaybe)
+import Data.IORef
+import System.Environment
 
 import Control.Monad
 import Control.Concurrent
@@ -24,8 +15,7 @@ import Servant
 import Api
 import Common
 import Web
-import GeoService.DB.Rethink as DB
---import GeoService.DB.MySql as DB
+
 
 runTestServer :: App -> IO ()
 runTestServer app = Network.Wai.Handler.Warp.run (listenPort app) (test app)
@@ -35,24 +25,19 @@ test app = serve api (server app)
 
 
 regenBase app = do
-    --DB.getCities
-    a <- R.run' (dbConn app) $ table "cities"
-    case ((resultToMaybe (fromDatum a)) :: Maybe [City]) of
-        Just bbb -> do 
-            let ref = (listCity app)
-            writeIORef ref bbb            
-        Nothing -> return ()
+    DB.getCities app   
 
 workerRegen app = forever $ do
     regenBase app
-    threadDelay 10
+    threadDelay 10000000
 
 main = do    
     dbH <- DB.initDb
     tmp <- newIORef []
+    port <- getEnv "GEO_LISTEN_PORT"
     let app = App { 
             dbConn = dbH ,
-            listenPort = 8001, 
+            listenPort = (read port), 
             listCity = tmp
         }
     regenBase app

@@ -6,7 +6,7 @@ import           Control.Monad.Trans.Either
 import           Servant.Client
 import           System.Environment
 import           Servant
-import 			 Data.Text (Text)
+import 			     Data.Text (Text)
 import           GeoService.Model.City 
 
 import           Api

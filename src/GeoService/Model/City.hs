@@ -1,9 +1,4 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE PolyKinds #-}
-{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE OverloadedStrings #-}
 
 module GeoService.Model.City where
 
@@ -16,8 +11,8 @@ data CityTranslation = CityTranslation {
 } deriving (Show,Generic)
 
 data Location = Location {
-    lng :: Float,
-    lat :: Float
+    longitude :: Double,
+    latitude :: Double
 } deriving (Show,Generic)
 
 data Population = Population {
@@ -31,10 +26,20 @@ data City = City {
     cityId :: String,
     cityTranslations :: [CityTranslation],
     country :: String,
---    location :: Location,
+    location :: Location,
 --    population :: Population,
     region :: String
 } deriving (Show,Generic)
+
+instance FromDatum City where
+  parseDatum (Object v) = City
+                          <$> (v .: "cityId")
+                          <*> (v .: "country")
+                          <*> (v .: "city")
+                          <*> (v .: "cityTranslations")
+                          <*> (v .: "region")
+                          <*> (v .: "location")
+  parseDatum _          = mzero
 
 instance FromJSON City 
 instance FromJSON CityTranslation
