@@ -1,11 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DataKinds #-}
 
 module GeoService.DB.Rethink where
 import Data.IORef
 import System.Environment
 import qualified Data.Text as T
 import qualified Database.RethinkDB as R
-import Database.RethinkDB.Datum (resultToMaybe)
+import Database.RethinkDB.Datum (resultToMaybe,resultToEither)
 import GeoService.Model.City.Datum
 import Database.RethinkDB.NoClash
 import GeoService.Model.City
@@ -22,7 +23,7 @@ initDb = do
 
 getCities :: App -> IO()
 getCities app = do
-    a <- R.run' (dbConn app) $ table "cities"
+    a <- R.run' (dbConn app) $ table "cities" 
     case ((resultToMaybe (fromDatum a)) :: Maybe [City]) of
         Just bbb -> do 
             let ref = (listCity app)

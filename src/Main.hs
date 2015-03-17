@@ -29,7 +29,7 @@ regenBase app = do
 
 workerRegen app = forever $ do
     regenBase app
-    threadDelay 10000000
+--    threadDelay 10000000
 
 main = do    
     dbH <- DB.initDb

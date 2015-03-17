@@ -4,10 +4,11 @@ module GeoService.Model.City where
 
 import Data.Aeson
 import GHC.Generics
+import Data.Text
 
 data CityTranslation = CityTranslation {
-    content :: String,
-    lang :: String
+    content :: Text,
+    lang :: Text
 } deriving (Show,Generic)
 
 data Location = Location {
@@ -22,24 +23,15 @@ data Population = Population {
 
 
 data City = City {
-    city :: String,
-    cityId :: String,
+    city :: Text,
+    cityId :: Text,
     cityTranslations :: [CityTranslation],
-    country :: String,
+    country :: Text,
     location :: Location,
 --    population :: Population,
-    region :: String
+    region :: Text
 } deriving (Show,Generic)
 
-instance FromDatum City where
-  parseDatum (Object v) = City
-                          <$> (v .: "cityId")
-                          <*> (v .: "country")
-                          <*> (v .: "city")
-                          <*> (v .: "cityTranslations")
-                          <*> (v .: "region")
-                          <*> (v .: "location")
-  parseDatum _          = mzero
 
 instance FromJSON City 
 instance FromJSON CityTranslation

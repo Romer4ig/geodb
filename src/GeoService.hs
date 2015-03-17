@@ -39,4 +39,4 @@ autocompleteWithLimit work limit  = do
   a <- runEitherT (cityAutocomplete' work (Just limit) base)
   return a
 
-( searchCountry' :<|> serachCountryShort :<|> getAllCites'  :<|> cityAutocomplete') = client api
+( searchCountry' :<|> serachCountryShort :<|> getAllCites'  :<|> cityAutocomplete'  :<|> addCity :<|> refresh) = client api

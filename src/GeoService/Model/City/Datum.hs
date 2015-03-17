@@ -11,12 +11,12 @@ import qualified Data.Text as T
 
 instance FromDatum City where
   parseDatum (Object v) = City
-                          <$> (v .: "cityId")
-                          <*> (v .: "country")
-                          <*> (v .: "city")
-                          <*> (v .: "cityTranslations")
-                          <*> (v .: "region")
+                          <$> (v .: "city")                          
+                          <*> (v .: "cityId")
+                          <*> (v .: "cityTranslations")  
+                          <*> (v .: "country")                        
                           <*> (v .: "location")
+                          <*> (v .: "region")
   parseDatum _          = mzero
 
 instance FromDatum Location where
@@ -26,14 +26,15 @@ instance FromDatum Location where
 instance FromDatum CityTranslation
 
 instance ToDatum City where
-  toDatum  a = object [ "cityId"  .= toDatum (cityId a)
-                     , "country" .= toDatum (country a)
-                     , "city"    .= toDatum (city a)
+  toDatum  a = object [ "city"    .= toDatum (city a)
+                     , "cityId"  .= toDatum (cityId a)
                      , "cityTranslations" .= toDatum (cityTranslations a)
-                     , "region"     .= toDatum (region a)
+                     , "country" .= toDatum (country a)               
+                     
                      , "location"   .= LonLat { Database.RethinkDB.Datum.longitude = GeoService.Model.City.longitude (location a)
                                              ,  Database.RethinkDB.Datum.latitude  = GeoService.Model.City.latitude (location a)
-                                         }                   
+                                         }     
+                     , "region"     .= toDatum (region a)             
               ]
 
 instance ToDatum CityTranslation where

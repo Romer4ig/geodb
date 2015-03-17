@@ -13,17 +13,17 @@ import GeoService.DB.Rethink as DB
 
 
 server :: App -> Server Api
-server app = searchCountry :<|> serachCountryShort :<|> getAllCites :<|> cityAutocomplete :<|> addCity
+server app = searchCountry :<|> serachCountryShort :<|> getAllCites :<|> cityAutocomplete :<|> addCity :<|> refresh
 
   where searchCountry name = do
             listCity <- liftIO $ readIORef (listCity app)  
-            let list = filter (\x -> (country x) == (T.unpack name)) listCity 
+            let list = filter (\x -> (country x) == name) listCity 
             return list
 
         serachCountryShort name = do
             listCity <- liftIO $ readIORef (listCity app)  
-            let list = filter (\x -> (country x) == (T.unpack name)) listCity 
-                list' = map (\x -> T.pack (cityId x)) list
+            let list = filter (\x -> (country x) == name) listCity 
+                list' = map (\x -> cityId x) list
             return list' 
 
         getAllCites = do 
@@ -32,9 +32,12 @@ server app = searchCountry :<|> serachCountryShort :<|> getAllCites :<|> cityAut
 
         cityAutocomplete name limit = do
             listCity <- liftIO $ readIORef (listCity app)  
-            let list = filter (\x -> any (\y -> L.isInfixOf (T.unpack name) (content y)) (cityTranslations x)) listCity             
+            let list = filter (\x -> any (\y -> T.isInfixOf name (content y)) (cityTranslations x)) listCity             
             return (take (maybe 10 (min 20) limit) list) 
 
         addCity body =  do
             liftIO $ DB.add app body
             return (cityId body)
+
+        refresh =  do
+            return (T.pack "NOT FORKING YET")
