@@ -19,7 +19,7 @@ executable geoservice
   main-is:             Main.hs
   -- other-modules:       
   other-extensions:    TypeSynonymInstances, FlexibleInstances, OverlappingInstances, DataKinds, TypeOperators, OverloadedStrings, PolyKinds, TypeFamilies, DeriveGeneric
-  build-depends:       base >=4.7 && <4.8, vector >=0.10 && <0.11, servant-server >=0.2 && <0.3, text >=1.2 && <1.3, rethinkdb >=1.15 && <1.16, wai >=3.0 && <3.1, warp >=3.0 && <3.1, transformers >=0.4 && <0.5, aeson >=0.8 && <0.9
+  build-depends:       base >=4.7 && <4.8, vector >=0.10 && <0.11, servant-server >=0.2 && <0.3, text >=1.2 && <1.3, wreq ,wai >=3.0 && <3.1, warp >=3.0 && <3.1, transformers >=0.4 && <0.5, aeson >=0.8 && <0.9
   hs-source-dirs:      src
   default-language:    Haskell2010
 
@@ -27,6 +27,6 @@ library
   Exposed-Modules:     GeoService.Model.City, GeoService
   build-depends:       base >= 4.7 && < 4.8 , either
                      , servant-client, servant
-                     , servant-server, text, aeson
+                     , servant-server, text, aeson, wreq , data-default, lens , http-types,bytestring
   hs-source-dirs:      src
   default-language:    Haskell2010
