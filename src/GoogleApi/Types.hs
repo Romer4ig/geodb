@@ -1,10 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module GoogleApi.Types where
 import Data.Text (Text)
 import Data.Default
 import Control.Applicative
 import Control.Monad
+import GHC.Generics
 import Data.Aeson hiding (Result)
 type Components = [(Component,String)]
 
@@ -14,7 +16,7 @@ data Status = Ok -- ^ indicates that no errors occurred; the address was success
             | RequestDenied -- ^ indicates that your request was denied.
             | InvalidRequest -- ^ generally indicates that the query (address, components or latlng) is missing.
             | UnknownError -- ^ indicates that the request could not be processed due to a server error. The request may succeed if you try again.
- deriving (Show)
+ deriving (Show,Generic)
 
 -- | https://developers.google.com/maps/documentation/geocoding/#ComponentFiltering
 --   
@@ -38,26 +40,33 @@ data Options = Options { --bounds :: Maybe Text -- ^ Your application's API key,
 
 data Response = Response { results :: [Result]
                          , status :: Status
-} deriving (Show)
+} deriving (Show,Generic)
+
+instance ToJSON Response
+instance ToJSON Status
+instance ToJSON Result
+instance ToJSON AddressComponent
+instance ToJSON Geometry
+instance ToJSON Location
 
 data AddressComponent = AddressComponent { longName  :: String
                                          , shortName :: String 
                                          , types     :: [Text]
-} deriving (Show)
+} deriving (Show,Generic)
 
 data Location = Location { lat :: Double
                          , lng :: Double
-} deriving (Show)
+} deriving (Show,Generic)
 
 data Geometry = Geometry { location :: Location 
-} deriving (Show)
+} deriving (Show,Generic)
 
 data Result = Result { addressComponents :: [AddressComponent] 
                      , formattedAddress  :: String
                      , geometry          :: Geometry
                      , placeId           :: Text
                      , addressTypes      :: [Text]
-  } deriving (Show)
+  } deriving (Show,Generic)
 
 instance Default Options where
     def = Options { key = Nothing

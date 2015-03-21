@@ -19,8 +19,8 @@ import qualified Data.Text.Encoding as T
 
 geocodeUrl = "maps.googleapis.com/maps/api/geocode/json"
 
--- getByAddress :: Text -> Response
--- getByAddress x = getByAddressWith def x
+getByAddress :: Text -> IO ( Response )
+getByAddress x = getByAddressWith def x
 
 getByAddressWith :: Options -> Text -> IO (Response)
 getByAddressWith o x = do 

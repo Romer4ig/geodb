@@ -5,7 +5,6 @@ import qualified GeoService.DB.Rethink as DB
 import Database.RethinkDB.NoClash
 import Data.IORef
 import System.Environment
-
 import Control.Monad
 import Control.Concurrent
 
@@ -25,16 +24,18 @@ test app = serve api (server app)
 
 
 regenBase app = do
-    DB.getCities app   
+    DB.getCities (dbConn app) >>= writeIORef (listCity app )   
 
 workerRegen app = forever $ do
     regenBase app
---    threadDelay 10000000
+    let minute = 60*10^6
+        hour = 60*minute
+        in threadDelay hour
 
 main = do    
     dbH <- DB.initDb
     tmp <- newIORef []
-    port <- getEnv "GEO_LISTEN_PORT"
+    port <- getEnv "DB_LISTEN_PORT"
     let app = App { 
             dbConn = dbH ,
             listenPort = (read port), 

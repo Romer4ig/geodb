@@ -3,7 +3,8 @@ module GeoService.Model.City.Datum where
 
 import GeoService.Model.City
 import qualified Database.RethinkDB.NoClash
-import Database.RethinkDB.Datum
+import qualified Database.RethinkDB.Datum as Datum
+import Database.RethinkDB.Datum hiding (LonLat(..))
 import Control.Monad
 import Control.Applicative
 import qualified Data.Text as T
@@ -20,7 +21,8 @@ instance FromDatum City where
   parseDatum _          = mzero
 
 instance FromDatum Location where
-  parseDatum (Point rethinkPoint) = return (Location (fromRational . toRational $ (Database.RethinkDB.Datum.latitude rethinkPoint)) (fromRational . toRational $ (Database.RethinkDB.Datum.longitude rethinkPoint)))
+  parseDatum (Point rethinkPoint) = return (Location { latitude  = (fromRational . toRational $ (Datum.latitude rethinkPoint))
+                                                     , longitude = (fromRational . toRational $ (Datum.longitude rethinkPoint))})
   parseDatum _          = mzero
 
 instance FromDatum CityTranslation
@@ -31,8 +33,8 @@ instance ToDatum City where
                      , "cityTranslations" .= toDatum (cityTranslations a)
                      , "country" .= toDatum (country a)               
                      
-                     , "location"   .= LonLat { Database.RethinkDB.Datum.longitude = GeoService.Model.City.longitude (location a)
-                                             ,  Database.RethinkDB.Datum.latitude  = GeoService.Model.City.latitude (location a)
+                     , "location"   .= Datum.LonLat { Datum.longitude = longitude (location a)
+                                                    ,  Datum.latitude  = latitude (location a)
                                          }     
                      , "region"     .= toDatum (region a)             
               ]
