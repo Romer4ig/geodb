@@ -21,6 +21,7 @@ type Api =
   :<|> "cities"   :>  Get [City]
         -- GET autocomplite by city in cityTranslation
   :<|> "city"    :>  Capture "name" Text :> "autocomplete" :> QueryParam "limit" Int :> Get [City]
+  :<|> "city"    :>  "autocomplete" :> QueryParam "limit" Int :> Get [City]
 
   :<|> "addcity" :> ReqBody City :> Post Text
 

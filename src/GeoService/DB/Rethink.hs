@@ -63,5 +63,5 @@ getCities model = do
 add :: Model -> City -> IO ()
 add model city = do
   withResource model $ \conn -> do
-    run conn $ table "cities" # insert (toDatum city)
+    run conn $ table "cities_tmp" # insert (toDatum city)
     

@@ -19,16 +19,16 @@ import qualified GeoService.Model.SearchCity as SearchCity
 import Control.Monad
 
 server :: App -> Server Api
-server app = searchCountry :<|> serachCountryShort :<|> getAllCites :<|> cityAutocomplete :<|> addCity :<|> refresh :<|> nearCities :<|> nearCity :<|> searchCity
+server app = searchCountry :<|> serachCountryShort :<|> getAllCites :<|> cityAutocomplete :<|> cityAutocomplete' :<|> addCity :<|> refresh :<|> nearCities :<|> nearCity :<|> searchCity
 
   where searchCountry name = do
             listCity <- liftIO $ readIORef (listCity app)  
-            let list = filter (\x -> (country x) == name) listCity 
+            let list = filter (\x -> (T.toLower(country x)) == (T.toLower name)) listCity 
             return list
 
         serachCountryShort name = do
             listCity <- liftIO $ readIORef (listCity app)  
-            let list = filter (\x -> (country x) == name) listCity 
+            let list = filter (\x -> (T.toLower(country x)) == (T.toLower name)) listCity 
                 list' = map (\x -> cityId x) list
             return list' 
 
@@ -38,14 +38,21 @@ server app = searchCountry :<|> serachCountryShort :<|> getAllCites :<|> cityAut
 
         cityAutocomplete name limit = do
             listCity <- liftIO $ readIORef (listCity app)  
-            let list = filter (\x -> any (\y -> T.isInfixOf name (content y)) (cityTranslations x)) listCity             
+            let isPrefixLower a b = (T.toLower a) `T.isPrefixOf` (T.toLower b)
+                isOnlyInfix a b = (T.toLower a) `T.isInfixOf` (T.toLower b) && (not( isPrefixLower a b))
+                list = filter (\x -> any (\y -> isPrefixLower name (content y)) (cityTranslations x) ) listCity ++ filter (\x -> any (\y -> isOnlyInfix name (content y)) (cityTranslations x)) listCity
+--                       any (\x -> (T.toLower name) `T.isPrefixOf` (T.toLower(content y))) s) ++ filter (\x -> (T.toLower name) `isInfixOf` (T.toLower(content y)) &&-- (not ((T.toLower name) `isPrefixOf` (T.toLower(content y)))) listCity
             return (take (maybe 10 (min 20) limit) list) 
+
+        cityAutocomplete' limit = do
+            return []
 
         addCity body =  do
             liftIO $ DB.add (dbConn app) body
             return (cityId body)
 
         refresh =  do
+            liftIO $ DB.getCities (dbConn app) >>= writeIORef (listCity app )
             return (T.pack "NOT FORKING YET")
         
         nearCities lat lng limit = do 
@@ -62,14 +69,10 @@ server app = searchCountry :<|> serachCountryShort :<|> getAllCites :<|> cityAut
 
         searchCity name = do
             sc <- liftIO $ DB.getSearchCity (dbConn app) (T.unpack  name)
+
             case sc of 
               [] -> do
                   r <- liftIO $ fmap ( listToMaybe . map (\x -> let g = GT.location (GT.geometry x) in (GT.lat g,GT.lng g)) . GT.results) (getByAddress name)
-                  --r1 <- liftIO $ do
-                  --             googleResults <- getByAddress name
-                  --             let getLatLng x = let g = GT.geometry x 
-                  --                    in (GT.lat (GT.location g),GT.lng (GT.location g))
-                  --             return (listToMaybe $ map getLatLng $ GT.results googleResults)
                   case r of 
                     Just _ -> do
                                listCity <- liftIO $ DB._getCities (dbConn app)
@@ -82,7 +85,8 @@ server app = searchCountry :<|> serachCountryShort :<|> getAllCites :<|> cityAut
                     Nothing -> return Nothing  
               [a] -> do
                       listCity <- liftIO $ readIORef (listCity app) 
-                      return $ L.find (\x -> (cityId x) == (SearchCity.cityId a) ) listCity
+                      let city = L.find (\x -> (cityId x) == (SearchCity.cityId a) ) listCity
+                      return city
                   
                   
 
